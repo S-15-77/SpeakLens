@@ -1,0 +1,23 @@
+# FastAPI and server
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+
+# Transformers and model support
+transformers==4.40.1
+torch==2.2.2+cpu
+torchaudio==2.2.2+cpu
+scipy==1.13.0
+sentencepiece==0.1.99
+accelerate==0.30.1
+
+# Audio + Processing
+librosa==0.10.2
+numpy==1.26.4
+soundfile==0.12.1
+pydub==0.25.1
+
+# Optional: Voice Activity Detection (you’ll use this later)
+pyannote-audio==3.1.1
+
+# Utilities
+python-multipart==0.0.9
