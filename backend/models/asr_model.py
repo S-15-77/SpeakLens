@@ -10,11 +10,15 @@ class ASRModel:
         self.model.to(self.device)
 
     def transcribe(self, audio_path):
-        # Load audio from file (webm, ogg, wav — works all)
-        speech, sr = librosa.load(audio_path, sr=16000)
+        print(f"🎧 Loading audio from {audio_path}")
+        waveform, sample_rate = torchaudio.load(audio_path)
+        
+        if sample_rate != 16000:
+            waveform = torchaudio.functional.resample(waveform, orig_freq=sample_rate, new_freq=16000)
+            sample_rate = 16000
 
         inputs = self.processor(
-            speech, sampling_rate=16000, return_tensors="pt"
+            waveform.squeeze().numpy(), sampling_rate=sample_rate, return_tensors="pt"
         ).to(self.device)
 
         with torch.no_grad():
