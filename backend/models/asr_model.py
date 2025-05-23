@@ -1,3 +1,6 @@
+# backend/models/asr_model.py
+
+import torchaudio
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import torch
 import librosa
@@ -10,15 +13,11 @@ class ASRModel:
         self.model.to(self.device)
 
     def transcribe(self, audio_path):
-        print(f"🎧 Loading audio from {audio_path}")
-        waveform, sample_rate = torchaudio.load(audio_path)
-        
-        if sample_rate != 16000:
-            waveform = torchaudio.functional.resample(waveform, orig_freq=sample_rate, new_freq=16000)
-            sample_rate = 16000
+        print(f"🎧 Loading {audio_path} with librosa")
+        y, sr = librosa.load(audio_path, sr=16000)
 
         inputs = self.processor(
-            waveform.squeeze().numpy(), sampling_rate=sample_rate, return_tensors="pt"
+            y, sampling_rate=16000, return_tensors="pt"
         ).to(self.device)
 
         with torch.no_grad():
@@ -26,3 +25,4 @@ class ASRModel:
             transcription = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
         return transcription
+
