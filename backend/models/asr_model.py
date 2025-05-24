@@ -23,6 +23,6 @@ class ASRModel:
         with torch.no_grad():
             generated_ids = self.model.generate(inputs["input_features"])
             transcription = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-
+        
         return transcription
 

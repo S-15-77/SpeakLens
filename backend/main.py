@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from backend.routes import asr_route
+from backend.routes import summerizer_route
 from fastapi.middleware.cors import CORSMiddleware
 
 import sys
@@ -7,6 +8,7 @@ sys.path.append(".")
 
 app = FastAPI()
 app.include_router(asr_route.router)
+app.include_router(summerizer_route.router)
 
 app.add_middleware(
     CORSMiddleware,
