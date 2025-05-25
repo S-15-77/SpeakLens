@@ -8,6 +8,9 @@ const AudioRecorder: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [question,setQuestion] = useState("");
+  const [answer,setAnswer] = useState("");
+  const [qaLoading, setQaLoading] = useState(false);
   const recorderRef = useRef<any>(null);
 
   const startRecording = async () => {
@@ -87,6 +90,29 @@ const AudioRecorder: React.FC = () => {
     }
   };
 
+  const handleQuestionsubmit = async()=>{
+    if(!question.trim() || !transcript.trim()){
+      setAnswer("Enter a question or Transript is empty");
+      return;
+    }
+    try{
+      setQaLoading(true);
+      setAnswer("");
+
+      const res =  await axios.post("http://127.0.0.1:8000/answer",{question: { question: question },
+  content: { content: transcript },});
+      setAnswer(res.data.answer || res.data.error || "No answer");
+
+    }
+    catch(err){
+      console.log("QA Error:",err);
+      setAnswer("❌ Error generating answer.");
+      
+    }finally{
+      setQaLoading(false);
+    }
+  }
+
   return (
     <div style={{ padding: "2rem", maxWidth: "700px", margin: "auto" }}>
       {/* <h2>🎧 SpeakLens: Real-Time Meeting Assistant</h2> */}
@@ -135,6 +161,34 @@ const AudioRecorder: React.FC = () => {
           )}
         </div>
       )}
+
+      {/*Question answer Section */}
+      {transcript && (
+        <div style={{marginTop : "2rem"}}>
+        <h3>❓ Ask a Question</h3>
+        <input
+        type ="text"
+        value={question}
+        onChange={(e) => setQuestion(e.target.value)}
+        placeholder="Enter your question here"
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "0.5rem" ,borderRadius: "4px", border: "1px solid #ccc" }}
+        />
+        <button onClick={handleQuestionsubmit} style={{ padding: "0.5rem 1rem", marginBottom: "1rem" }}>Send</button>
+        {qaLoading && <p>⏳ Answering...</p>}
+        {!qaLoading && answer && (
+          <div
+          style ={{background : "#fff8dc",marginTop:"1rem",padding: "1rem", borderRadius: "8px"}}
+          >
+            <strong>Answer : </strong><p>{answer}</p>
+          </div>
+        )}
+        
+        
+        </div>
+      )
+
+      }
+
     </div>
   );
 };

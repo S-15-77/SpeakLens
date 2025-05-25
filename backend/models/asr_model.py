@@ -4,6 +4,7 @@ import torchaudio
 from transformers import AutoProcessor, AutoModelForSpeechSeq2Seq
 import torch
 import librosa
+import math
 
 class ASRModel:
     def __init__(self):
@@ -16,13 +17,26 @@ class ASRModel:
         print(f"🎧 Loading {audio_path} with librosa")
         y, sr = librosa.load(audio_path, sr=16000)
 
-        inputs = self.processor(
-            y, sampling_rate=16000, return_tensors="pt"
-        ).to(self.device)
+        chunk_duration = 30  # seconds
+        chunk_size = chunk_duration * sr
+        total_chunks = math.ceil(len(y) / chunk_size)
 
-        with torch.no_grad():
-            generated_ids = self.model.generate(inputs["input_features"])
-            transcription = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        
-        return transcription
+        transcript = ""
+
+        for i in range(total_chunks):
+            start = i * chunk_size
+            end = start + chunk_size
+            y_chunk = y[start:end]
+
+            inputs = self.processor(
+                y_chunk, sampling_rate=16000, return_tensors="pt"
+            ).to(self.device)
+
+            with torch.no_grad():
+                generated_ids = self.model.generate(inputs["input_features"])
+                chunk_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+                transcript += chunk_text + " "
+
+        print("✅ Full transcript length:", len(transcript))
+        return transcript.strip()
 
