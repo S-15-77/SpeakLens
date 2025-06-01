@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Body
-from backend.models.sentiment_analysis.sentiment_model import SentimentModel
+from backend.models.Sentiment_analysis.sentiment_model import SentimentModel
 
 router = APIRouter()
 model = SentimentModel()
